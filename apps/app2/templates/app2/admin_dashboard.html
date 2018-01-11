@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<title>CSGO Academy</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{% load static %}
+<link rel="stylesheet" type = "text/css" href= {% static 'app2/css/w3ref.css' %}>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amatic+SC">
+<style>
+body, html {height: 100%}
+body,h1,h2,h3,h4,h5,h6 {font-family: "Amatic SC", sans-serif}
+/* .menu {display: none} */
+.bgimg_admin {
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-image: url( {% static 'app2/images/admin_background.jpg' %});
+    background-color: rgba(255,255,255,0.8) !important;
+    background-blend-mode: color;
+    min-height: 100%;
+}
+
+.bgimg_admin_2 {
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-image: url( {% static 'app2/images/admin_background_2.jpg' %});
+    background-color: rgba(255,255,255,0.6) !important;
+    background-blend-mode: color;
+    min-height: 100%;
+}
+</style>
+<body>
+<!-- Navbar (sit on top) -->
+<div class="w3-top w3-hide-small">
+    <div class="w3-bar w3-xlarge w3-black w3-opacity w3-hover-opacity-off" id="myNavbar">
+        <a href="#services" class="w3-bar-item w3-button">ADD SERVICES</a>
+        <a href="#remove_services" class="w3-bar-item w3-button">REMOVE SERVICES</a>
+        <a href="#orders" class="w3-bar-item w3-button">ORDERS</a>
+        <form action = '/logout' method = 'POST'>
+            {% csrf_token %}
+            <input class="w3-bar-item-right w3-button" style = "width:auto" type = "submit" value = "Log Out">
+        </form>
+        <form action = '/'>
+            <input class="w3-bar-item-right w3-button" style = "width:auto" type = "submit" value = "Home">
+        </form>
+    </div>
+</div>
+
+<!-- ADD NEW SERICES  -->
+<div class="bgimg_admin w3-display-container w3-grayscale-min">
+    <div class = 'admin_box' id = "services">
+        <div class = 'products'>
+            <div class="w3-container w3-black-admin w3-padding-64 w3-xxlarge">
+                <div class="w3-content">
+                
+                    <h1 class="w3-center w3-jumbo" style="margin-bottom:20px">ADD A NEW SERVICE</h1>
+                    <form action = '/add_service' method = 'POST'>
+                        {% csrf_token %}
+                        <p>Service Type:                      
+                        <select name = 'category_id'>
+                            {% for category in categories%}
+                                <option value = '{{category.id}}'>{{category.name}}</option>
+                            {% endfor %}
+                        </select>
+                        </p>
+                        <p>Service Name: <input type = 'text' name = 'service'></p>
+                        <p>Service Description: <input type = 'text' name = 'description'></p>
+                        <p>Service Price: <input type = 'text' name = 'price'></p>
+                        <input class = "big_green" type = "submit" value = "Add Service">
+                    </form>
+                    
+                </div>
+            </div>
+      
+        </div>
+    </div>
+</div>
+
+<!-- REMOVE EXISTING -->
+<div class="w3-container w3-padding-64 w3-red w3-grayscale w3-xlarge" id="remove_services">
+        <div class="w3-content">
+            <h1 class="w3-center w3-jumbo" style="margin-bottom:64px">REMOVE EXISTING SERVICES</h1>
+            {% for existing in services %}
+                <div class="w3-container w3-padding-32-admin w3-white-admin">
+                    <h1><b>{{existing.category_id.name}} - {{existing.service}}</b> <span class="w3-right w3-tag w3-dark-grey w3-round">$ {{existing.price}}</span></h1>
+                    <p class="w3-text-grey">{{existing.description}}</p>
+                    <form action = '/remove_existing' method = 'POST'>
+                        {% csrf_token %}
+                        <input type = "hidden" name = "remove" value = '{{existing.id}}'>
+                        <input class = 'big_green_remove' type = "submit" value = "Remove">
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+</div>
+
+<!-- MANAGE ORDERS -->
+<div class="bgimg_admin_2 w3-display-container w3-grayscale-min">
+        <div class = 'admin_box' id = "orders">
+            <div class = 'products'>
+                <h1 class="w3-center w3-jumbo" style="margin-bottom:20px">MANAGE ORDERS</h1>
+                <div class="w3-container w3-black-admin-orders w3-padding-64 w3-xxlarge">
+                        <div class="w3-content">
+                            {% for order in orders %}
+                                {% if order.status == False %}
+                                <div class="w3-container w3-padding-32-admin w3-white-admin">
+                                    <h1><b>Purchased By: {{order.user_id.first_name}}</b> <span class="w3-right w3-tag w3-dark-grey w3-round">Total: $ {{order.total}}</span></h1>
+                                    <p class="w3-text-grey">Purchased On: {{order.created_at}}</p>
+                                    <p class="w3-text-grey">Order Status: <span class = "not_delivered">Not Delivered</span></p>
+                                    <form action = '/deliver_order' method = 'POST'>
+                                        {% csrf_token %}
+                                        <input type = "hidden" name = "order_id" value = '{{order.id}}'>
+                                        <input class = 'big_green_deliver' type = "submit" value = "Deliver!">
+                                    </form>
+                                </div>
+                                {% else %}       
+                                <div class="w3-container w3-padding-32-admin w3-white-admin">
+                                    <h1><b>Purchased By: {{order.user_id.first_name}}</b> <span class="w3-right w3-tag w3-dark-grey w3-round">Total: $ {{order.total}}</span></h1>
+                                    <p class="w3-text-grey">Purchased On: {{order.created_at}}</p>
+                                    <p class="w3-text-grey">Order Status: <span class = "delivered">Delivered!</span></p>
+                                    <button class = 'big_green_deliver'>Delivered!</button>
+                                </div>
+                                {% endif %}
+
+                            </div>
+                        {% endfor %}
+                </div>
+          
+            </div>
+        </div>
+    </div>
+
+
+</body>
+
+<script>
+    {% if messages %}
+        {% for message in messages %}
+            alert('{{message}}')
+        {% endfor %}
+    {% endif %}
+</script>
+</html>

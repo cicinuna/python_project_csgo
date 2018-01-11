@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<title>CSGO Academy</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{% load static %}
+<link rel="stylesheet" type = "text/css" href= {% static 'app1/css/w3ref.css' %}>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amatic+SC">
+<style>
+body, html {height: 100%}
+body,h1,h2,h3,h4,h5,h6 {font-family: "Amatic SC", sans-serif}
+.menu {display: none}
+.bgimg_admin {
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-image: url( {% static 'app1/images/admin_background.jpg' %});
+    background-color: rgba(255,255,255,0.7) !important;
+    background-blend-mode: color;
+    min-height: 100%;
+}
+</style>
+<body>
+  
+<!-- Header with image -->
+<div class="bgimg_admin w3-display-container w3-grayscale-min">
+    <div class = 'admin_box'>
+        <form action = "/process_login" method = 'POST'>
+            {% csrf_token %}
+            Admin Username: <input type = 'text' name = 'username'>
+            Admin Password: <input type = 'password' name = 'password'>
+            <input class = 'big_green' type = 'submit' value = 'Log In'>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

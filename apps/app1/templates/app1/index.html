@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<title>CSGO Academy</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{% load static %}
+<link rel="stylesheet" type = "text/css" href= {% static 'app1/css/w3ref.css' %}>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amatic+SC">
+<style>
+body, html {height: 100%}
+body,h1,h2,h3,h4,h5,h6 {font-family: "Amatic SC", sans-serif}
+.menu {display: none}
+.bgimg {
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-image: url( {% static 'app1/images/csgo.png' %});
+    min-height: 90%;
+}
+</style>
+<body>
+
+<!-- Navbar (sit on top) -->
+<div class="w3-top w3-hide-small">
+  <div class="w3-bar w3-xlarge w3-black w3-opacity w3-hover-opacity-off" id="myNavbar">
+    <a href="#" class="w3-bar-item w3-button">HOME</a>
+    <a href="#about" class="w3-bar-item w3-button">ABOUT</a>
+    <a href="#service" class="w3-bar-item w3-button">SERVICES</a>
+    <a href="#googleMap" class="w3-bar-item w3-button">CONTACT</a>
+
+    {% if request.session.user %}
+      <form action = '/logout' method = 'POST'>
+        {% csrf_token %}
+        <input class="w3-bar-item-right w3-button" style = "width:auto" type = "submit" value = "Log Out">
+      </form>
+      {% if request.session.user.id == 1 %}
+        <form action = '/admin_dashboard'>
+          <input class="w3-bar-item-right w3-button" style = "width:auto" type = "submit" value = "Admin Dashboard">
+        </form>
+      {% else %}
+      <button class="w3-bar-item-right w3-button" onclick="document.getElementById('id03').style.display='block'" style="width:auto;background-color:transparent;border-color:transparent;height:52px;"><img style = "height:100%;" src = "{% static 'app1/images/cart.png' %}" alt = "Shopping Cart"></button>
+      <button class="w3-bar-item-right w3-button">Welcome, {{request.session.user.first_name}}</button>
+      {% endif %}
+    {% else %}
+      <button class="w3-bar-item-right w3-button" onclick="document.getElementById('id02').style.display='block'" style="width:auto;">REGISTER</button>
+      <button class="w3-bar-item-right w3-button" onclick="document.getElementById('id01').style.display='block'" style="width:auto;">LOGIN</button>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Modal login -->
+<div id="id01" class="modal">
+    
+    <form class="modal-content animate" action="/process_login" method = 'POST'>
+      {% csrf_token %}
+      <div class="imgcontainer">
+        <span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">&times;</span>
+      </div>
+  
+      <div class="container">
+        <label><b>Username</b></label>
+        <input type="text" placeholder="Enter Username" name="username">
+  
+        <label><b>Password</b></label>
+        <input type="password" placeholder="Enter Password" name="password">
+          
+        <input class = 'big_green' type="submit" value = "Login">
+      </div>
+      <div class="container" style="background-color:#f1f1f1">
+            <button type="button" onclick="document.getElementById('id01').style.display='none'" class="cancelbtn">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+<!-- Modal Register -->
+<div id="id02" class="modal">
+        
+        <form class="modal-content animate" action="/process_registration" method = 'POST'>
+            {% csrf_token %}
+          <div class="imgcontainer">
+            <span onclick="document.getElementById('id02').style.display='none'" class="close" title="Close Modal">&times;</span>
+          </div>
+      
+          <div class="container">            
+            <label><b>First Name</b></label>
+            <input type="text" placeholder="Enter First Name" name="first_name">
+
+            <label><b>Last Name</b></label>
+            <input type="text" placeholder="Enter Last Name" name="last_name">
+
+            <label><b>E-mail</b></label>
+            <input type="email" placeholder="Enter Email" name="email">
+
+            <label><b>Username</b></label>
+            <input type="text" placeholder="Enter Username" name="username">
+      
+            <label><b>Password</b></label>
+            <input type="password" placeholder="Enter Password" name="password">
+
+            <label><b>Confirm Password</b></label>
+            <input type="password" placeholder="Confirm Password" name="confirm_password">
+              
+            <input class = "big_green" type="submit" value = "Register">
+          </div>
+      
+          <div class="container" style="background-color:#f1f1f1">
+            <button type="button" onclick="document.getElementById('id02').style.display='none'" class="cancelbtn">Cancel</button>
+          </div>
+        </form>
+      </div>
+
+<!-- Modal Shopping Cart -->
+<div id="id03" class="modal">
+    
+    <div class="modal-content-cart animate">
+      {% csrf_token %}
+      <div class="imgcontainer">
+        <span onclick="document.getElementById('id03').style.display='none'" class="close" title="Close Modal">&times;</span>
+      </div>
+      {% if not request.session.cart %}
+        <div class="container">
+          <p>Your Cart Seems to be empty!</p>
+        </div>
+        <div class="container" style="background-color:#f1f1f1">
+              <button type="button" onclick="document.getElementById('id03').style.display='none'" class="cancelbtn">Continue Shopping</button>
+        </div>
+      {% else %}
+      {% for things in request.session.cart%}
+        <div class="container">
+            <p class = "cart_item_name">{{things.name}}</p>
+            <p class = "cart_item_price">  - ${{things.price}}</p>
+            <form class = "cart_delete_form" action = "/remove_item_from_cart" method = 'POST'>{% csrf_token %}<input class = "cart_delete" type = "hidden" name = "delete_id" value = '{{things.id}}'><input type = "submit" value = "remove"></form>
+        </div>
+      {% endfor %}
+      {{request.session.total_price}}
+      <div class="container" style="background-color:#f1f1f1">
+            <button type="button" onclick="document.getElementById('id03').style.display='none'" class="cancelbtn">Cancel</button>
+            <form class = "purchase_button" action = '/make_purchase' method = 'POST'><input class="buybtn" type = "submit" value = "Purchase"></form>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  
+<!-- Header with image -->
+<header class="bgimg w3-display-container w3-grayscale-min" id="home">
+  <div class="w3-display-middle w3-center">
+    <p><a href="#service" class="w3-button w3-xxlarge w3-black">Show me the services</a></p>
+  </div>
+</header>
+
+<!-- About Container -->
+<div class="w3-container w3-padding-64 w3-red w3-grayscale w3-xlarge" id="about">
+    <div class="w3-content">
+      <h1 class="w3-center w3-jumbo" style="margin-bottom:64px">About</h1>
+      <p>Our team consists of instructors from high skill level with lots of Counter-Strike experience. From former pros to PUG stars who all have lots of LAN background, our instructors can provide in-depth, highly productive lessons to guide you towards becoming a CS:GO superstar.</p>
+      <p>Weekends are filled with community 10-mans where you get to show off your progress and meet other competitive students!</p>
+      <p><strong>CS:GO boosting hosts our own LAN tournaments with skins for prizes! Free food @ these events!</strong></p>
+      <h1><b>Sample session video:</b></h1>
+      
+      <div class="w3-row">
+        <iframe width="100%" height="500px" src="https://www.youtube.com/embed/x9GEiAWH5KQ" frameborder="0" allowfullscreen></iframe>
+      </div>
+      
+    </div>
+  </div>
+
+<!-- Menu Container -->
+<div class="w3-container w3-black w3-padding-64 w3-xxlarge" id="service">
+  <div class="w3-content">
+  
+    <h1 class="w3-center w3-jumbo" style="margin-bottom:64px">OUR SERVICES</h1>
+    <div class="w3-row w3-center w3-border w3-border-dark-grey">
+      <a href="javascript:void(0)" onclick="openMenu(event, '{{first_category.name}}');" id="myLink">
+        <div class="w3-col s4 tablink w3-padding-large w3-hover-red">{{first_category.name}}</div>
+      </a>
+      <a href="javascript:void(0)" onclick="openMenu(event, '{{second_category.name}}');">
+        <div class="w3-col s4 tablink w3-padding-large w3-hover-red">{{second_category.name}}</div>
+      </a>
+      <a href="javascript:void(0)" onclick="openMenu(event, '{{third_category.name}}');">
+        <div class="w3-col s4 tablink w3-padding-large w3-hover-red">{{third_category.name}}</div>
+      </a>
+
+    </div>
+
+    <div id="{{first_category.name}}" class="w3-container menu w3-padding-32 w3-white">
+      {% for service in first_service_list %}
+        <h1><b>{{service.service}}</b> <span class="w3-right w3-tag w3-dark-grey w3-round">${{service.price}}</span></h1>
+        <p class="w3-text-grey-services">{{service.description}}<form class = "big_green_cart_form" action = '/add_to_cart' method = 'POST'>{% csrf_token %}<input type = "hidden" name = "service_id" value = '{{service.id}}'><input class = "big_green_cart" type = "submit" value = "Add to Cart"></form></p>
+        <hr>
+      {% endfor %}
+    </div>
+
+    <div id="{{second_category.name}}" class="w3-container menu w3-padding-32 w3-white">
+      {% for service in second_service_list %}
+        <h1><b>{{service.service}}</b> <span class="w3-tag w3-grey w3-round">Popular</span> <span class="w3-right w3-tag w3-dark-grey w3-round">${{service.price}}</span></h1>
+        <p class="w3-text-grey-services">{{service.description}}<form class = "big_green_cart_form" action = '/add_to_cart' method = 'POST'>{% csrf_token %}<input type = "hidden" name = "service_id" value = '{{service.id}}'><input class = "big_green_cart" type = "submit" value = "Add to Cart"></form></p>
+        <hr>
+      {% endfor %}
+    </div>
+
+
+    <div id="{{third_category.name}}" class="w3-container menu w3-padding-32 w3-white">
+      {% for service in third_service_list %}
+        <h1><b>{{service.service}}</b> <span class="w3-tag w3-grey w3-round">Recommended!</span><span class="w3-right w3-tag w3-dark-grey w3-round">${{service.price}}</span></h1>
+        <p class="w3-text-grey-services">{{service.description}}<form class = "big_green_cart_form" action = '/add_to_cart' method = 'POST'>{% csrf_token %}<input type = "hidden" name = "service_id" value = '{{service.id}}'><input class = "big_green_cart" type = "submit" value = "Add to Cart"></form></p>
+        <hr>
+      {% endfor %}
+    </div><br>
+  </div>
+</div>
+
+
+
+<!-- Contact (with google maps) -->
+<div id="googleMap" class="w3-grayscale-max" style="width:100%;height:400px;"></div>
+
+<!-- CONTACT US -->
+<div class="w3-container w3-padding-64 w3-blue-grey w3-grayscale-min w3-xlarge">
+  <div class="w3-content">
+    <h1 class="w3-center w3-jumbo" style="margin-bottom:64px">Have Questions?</h1>
+    <p>Find us at Burbank or give us a call through discord!</p>
+    <p><span class="w3-tag-contact">Want to become an instructor?</span>Send us your resume!</p>
+    <p class="w3-xxlarge"><strong>Reserve</strong> a lesson, a boosting ,or just simply send us a message:</p>
+    <form action="/send_message" method = 'POST'>
+      {% csrf_token %}
+      <p><input class="w3-input w3-padding-16 w3-border" type="text" name = 'name' placeholder="Name"></p>
+      <p><textarea class = "w3-input-contact w3-padding-16 w3-border" name = "message" placeholder = "Message"></textarea></p>
+      <input class="w3-button w3-light-grey w3-block" type="submit" value = "SEND MESSAGE">
+    </form>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="w3-center w3-black w3-padding-48 w3-xxlarge">
+  <p>Original Template By W3Schools</p>
+</footer>
+
+<script>
+{% if messages %}
+      {% for message in messages %}
+        alert('{{message}}')
+      {% endfor %}
+{% endif %}
+
+// Get the modal
+var modal = document.getElementById('id01');
+var modal_two = document.getElementById('id02');
+var modal_three = document.getElementById('id03')
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    } else if (event.target == modal_two) {
+        modal_two.style.display = "none";
+    } else if (event.target == modal_three) {
+        modal_three.style.display = "none";
+    }
+}
+
+function myMap()
+{
+  myCenter=new google.maps.LatLng(34.180839, -118.308966);
+  var mapOptions= {
+    center:myCenter,
+    zoom:17, scrollwheel: false, draggable: false,
+    mapTypeId:google.maps.MapTypeId.ROADMAP
+  };
+  var map=new google.maps.Map(document.getElementById("googleMap"),mapOptions);
+
+  var marker = new google.maps.Marker({
+    position: myCenter,
+  });
+  marker.setMap(map);
+}
+
+// Tabbed Menu
+function openMenu(evt, menuName) {
+  var i, x, tablinks;
+  x = document.getElementsByClassName("menu");
+  for (i = 0; i < x.length; i++) {
+     x[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablink");
+  for (i = 0; i < x.length; i++) {
+     tablinks[i].className = tablinks[i].className.replace(" w3-red", "");
+  }
+  document.getElementById(menuName).style.display = "block";
+  evt.currentTarget.firstElementChild.className += " w3-red";
+}
+document.getElementById("myLink").click();
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC1-8o4T0VwUL4JQUuZnW01i33lFv1qeTY&callback=myMap"></script>
+<!--
+To use this code on your website, get a free API key from Google.
+Read more at: https://www.w3schools.com/graphics/google_maps_basic.asp
+-->
+
+</body>
+</html>
