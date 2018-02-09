@@ -144,7 +144,14 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Amatic SC", sans-serif}
     {% endfor %}
       <div class="container" style="background-color:#f1f1f1">
             <button type="button" onclick="document.getElementById('id03').style.display='none'" class="cancelbtn">Cancel</button>
-            <form class = "purchase_button" action = '/make_purchase' method = 'POST'>{% csrf_token %}<input class="buybtn" type = "submit" value = "Purchase"></form>
+            <!-- <form class = "purchase_button" action = '/make_purchase' method = 'POST'>{% csrf_token %}<input class="buybtn" type = "submit" value = "Purchase"></form> -->
+            <form action="/make_purchase" method="POST">
+              {% csrf_token %}
+              <script src="https://checkout.stripe.com/checkout.js" class="stripe-button" data-key="pk_test_5oLLHf38I1zgGZsc9nEOMj2r" data-amount="{{request.session.total_price}}"
+                data-name="Stripe.com" data-description="Example charge" data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
+                data-locale="auto" data-zip-code="true">
+                </script>
+            </form>
             <span class="w3-right-cart w3-tag w3-dark-grey w3-round">Total Price:  $ {{request.session.total_price}}</span>
       </div>
       {% endif %}
@@ -231,7 +238,7 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Amatic SC", sans-serif}
     <p>Find us at Burbank or give us a call through discord!</p>
     <p><span class="w3-tag-contact">Want to become an instructor?</span>Send us your resume!</p>
     <p class="w3-xxlarge"><strong>Reserve</strong> a lesson, a boosting ,or just simply send us a message:</p>
-    <form action="/send_message" method = 'POST'>
+    <form action='/send_message' method = 'POST'>
       {% csrf_token %}
       <p><input class="w3-input w3-padding-16 w3-border" type="text" name = 'name' placeholder="Name"></p>
       <p><textarea class = "w3-input-contact w3-padding-16 w3-border" name = "message" placeholder = "Message"></textarea></p>

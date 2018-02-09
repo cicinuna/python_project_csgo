@@ -34,3 +34,9 @@ class Order(models.Model):
     updated_at = models.DateTimeField(auto_now = True)
     user_id = models.ForeignKey(User, related_name = "order")
     services = models.ManyToManyField(Service, related_name = "orders")
+
+class Message(models.Model):
+    name = models.CharField(max_length = 255)
+    message = models.CharField(max_length = 255)
+    created_at = models.DateTimeField(auto_now_add = True)
+    updated_at = models.DateTimeField(auto_now = True)

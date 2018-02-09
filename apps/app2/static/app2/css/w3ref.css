@@ -482,3 +482,16 @@ span.psw {
 .big_green_deliver:hover {
     opacity: 0.8;
 }
+
+.big_red_delete {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    cursor: pointer;
+    /* width: 15%; */
+    float: right;
+}
+
+.big_red_delete:hover {
+    opacity: 0.8;
+}

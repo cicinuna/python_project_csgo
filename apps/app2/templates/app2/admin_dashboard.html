@@ -35,6 +35,7 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Amatic SC", sans-serif}
         <a href="#services" class="w3-bar-item w3-button">ADD SERVICES</a>
         <a href="#remove_services" class="w3-bar-item w3-button">REMOVE SERVICES</a>
         <a href="#orders" class="w3-bar-item w3-button">ORDERS</a>
+        <a href="#messages" class="w3-bar-item w3-button">MESSAGES</a>
         <form action = '/logout' method = 'POST'>
             {% csrf_token %}
             <input class="w3-bar-item-right w3-button" style = "width:auto" type = "submit" value = "Log Out">
@@ -94,40 +95,63 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Amatic SC", sans-serif}
 </div>
 
 <!-- MANAGE ORDERS -->
-<div class="bgimg_admin_2 w3-display-container w3-grayscale-min">
-        <div class = 'admin_box' id = "orders">
-            <div class = 'products'>
-                <h1 class="w3-center w3-jumbo" style="margin-bottom:20px">MANAGE ORDERS</h1>
-                <div class="w3-container w3-black-admin-orders w3-padding-64 w3-xxlarge">
-                        <div class="w3-content">
-                            {% for order in orders %}
-                                {% if order.status == False %}
-                                <div class="w3-container w3-padding-32-admin w3-white-admin">
-                                    <h1><b>Purchased By: {{order.user_id.first_name}}</b> <span class="w3-right w3-tag w3-dark-grey w3-round">Total: $ {{order.total}}</span></h1>
-                                    <p class="w3-text-grey">Purchased On: {{order.created_at}}</p>
-                                    <p class="w3-text-grey">Order Status: <span class = "not_delivered">Not Delivered</span></p>
-                                    <form action = '/deliver_order' method = 'POST'>
-                                        {% csrf_token %}
-                                        <input type = "hidden" name = "order_id" value = '{{order.id}}'>
-                                        <input class = 'big_green_deliver' type = "submit" value = "Deliver!">
-                                    </form>
-                                </div>
-                                {% else %}       
-                                <div class="w3-container w3-padding-32-admin w3-white-admin">
-                                    <h1><b>Purchased By: {{order.user_id.first_name}}</b> <span class="w3-right w3-tag w3-dark-grey w3-round">Total: $ {{order.total}}</span></h1>
-                                    <p class="w3-text-grey">Purchased On: {{order.created_at}}</p>
-                                    <p class="w3-text-grey">Order Status: <span class = "delivered">Delivered!</span></p>
-                                    <button class = 'big_green_deliver'>Delivered!</button>
-                                </div>
-                                {% endif %}
-
-                            </div>
-                        {% endfor %}
+<div class="bgimg_admin_2 w3-display-container w3-grayscale-min"> <!-- MANAGE ORDERS OUTER DIV -->
+    <div class = 'admin_box' id = "orders"> <!--  -->
+        <div class = 'products'>
+            <h1 class="w3-center w3-jumbo" style="margin-bottom:20px">MANAGE ORDERS</h1>
+            <div class="w3-container w3-black-admin-orders w3-padding-64 w3-xxlarge">
+                <div class = "w3-content">
+                    {% for order in orders %}
+                        {% if order.status == False %}
+                        <div class = "w3-container w3-padding-32-admin w3-white-admin">
+                            <h1><b>Purchased By: {{order.user_id.first_name}}</b> <span class = "w3-right w3-tag w3-dark-grey w3-round">Total: $ {{order.total}}</span></h1>
+                            <p class = "w3-text-grey">Purchased on: {{order.created_at}}</p>
+                            <p class = "w3-text-grey">Order status: <span class = "not_delivered">Not Delivered!</span></p>
+                            <form action = '/deliver_order' method = 'POST'>
+                                {% csrf_token %}
+                                <input type = "hidden" name = "order_id" value = '{{order.id}}'>
+                                <input class = "big_green_deliver" type = "submit" value = "Deliver!">
+                            </form>
+                        </div>
+                        {% else %}
+                        <div class = "w3-container w3-padding-32-admin w3-white-admin">
+                            <h1><b>Purchased By: {{order.user_id.first_name}}</b> <span class = "w3-right w3-tag w3-dark-grey w3-round">Total: $ {{order.total}}</span></h1>
+                            <p class = "w3-text-grey">Purchased on: {{order.created_at}}</p>
+                            <p class = "w3-text-grey">Order status: <span class = "delivered">Delivered!</span></p>
+                            <button class = 'big_green_dliver'>Delivered!</button>
+                            <form action = '/delete_delivered' method = 'POST'>
+                                {% csrf_token %}
+                                <input type = "hidden" name = "order_id" value = '{{order.id}}'>
+                                <input class = "big_red_delete" type = "submit" value = "Delete This Record!">
+                            </form>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
                 </div>
-          
             </div>
         </div>
     </div>
+</div>
+
+<!-- Manage Messages -->
+<div class="w3-container w3-padding-64 w3-red w3-grayscale w3-xlarge" id="messages">
+    <div class="w3-content">
+        <h1 class="w3-center w3-jumbo" style="margin-bottom:64px">Manage Messages</h1>
+        {% for message in messages %}
+        <div class="w3-container w3-padding-32-admin w3-white-admin">
+            <h1>
+                <b>{{message.name}} Says: </b>
+            </h1>
+            <p class="w3-text-grey">{{message.message}}</p>
+            <form action='/remove_message' method='POST'>
+                {% csrf_token %}
+                <input type="hidden" name="remove" value='{{message.id}}'>
+                <input class='big_green_remove' type="submit" value="Remove">
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+</div>
 
 
 </body>

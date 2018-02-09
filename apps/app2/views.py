@@ -29,6 +29,9 @@ def index(request):
     return render(request, 'app2/index.html', content)
 
 def add_to_cart(request):
+    if 'user' not in request.session:
+        messages.error(request, 'You must be logged in to do that!')
+        return redirect(index)
     if request.session['user']['id'] == 1:
         messages.error(request, 'Admin cannot purchase like a noob!')
         return redirect(index)
@@ -144,10 +147,12 @@ def admin_dashboard(request):
         category_list = Category.objects.all()
         service_list = Service.objects.all()
         order_list = Order.objects.all()
+        message_list = Message.objects.all()
         content = {
             'categories': category_list,
             'services': service_list,
-            'orders': order_list
+            'orders': order_list,
+            'messages': message_list
         }
         first_order = Order.objects.first()
         print first_order.user_id
@@ -203,4 +208,20 @@ def deliver_order(request):
     order_to_change.save()
     messages.success(request, "Successfully delivered!")
     return redirect(admin_dashboard)
-    
+
+def send_message(request):
+    Message.objects.create(name = request.POST['name'], message = request.POST['message'])
+    messages.success(request, "Thank you for the message! We will get back to you as soon as possible!")
+    return redirect(index)
+
+def remove_message(request):
+    to_del = Message.objects.get(id = request.POST['remove'])
+    to_del.delete()
+    messages.success(request, "Successfully deleted message!")
+    return redirect(admin_dashboard)
+
+def delete_delivered(request):
+    to_del = Order.objects.get(id = request.POST['order_id'])
+    to_del.delete()
+    messages.success(request, "Successfully deleted the delivered order history!")
+    return redirect(admin_dashboard)
